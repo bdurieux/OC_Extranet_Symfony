@@ -2,11 +2,63 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>{% block title %}{{ title }}{% endblock %}</title>
+        {% block stylesheets %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="{{ asset('css/styles.css') }}" />
+        <link rel="stylesheet" media="screen and (max-width: 600px)" href="{{ asset('css/styles_mobile.css') }}" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+        {% endblock %}
     </head>
     <body>
+        {% block header %}
+        <!-- HEADER   -->
+        <header>
+        <div id="header1">
+            {% if logged %}        
+            <a href="{{ path('home') }}">
+            {% else %}
+            <a href="{{ path('login') }}">
+            {% endif %}
+            <img src="{{ asset('images/gbaf.png') }}" alt="logo GBAF">
+            </a>
+        </div>
+        <div id="header2">
+            <div id="header21">
+                <div id="header211">
+                    {% if not hideBtn %}
+                    <a href="{{ path('param') }}" class="button btn btn-primary "><i class="fa fa-user"></i></a>
+                    {% endif %}
+                </div>
+                <div id="header212">
+                    {% if logged %} 
+                    {{ headerText }}
+                    {% else %}
+                    <a href="{{ path('inscription') }}">Inscription</a>
+                    {% endif %}
+                </div>  
+                <div id="header213">
+                    {% if not hideBtn %}
+                    <a href="{{ path('logout') }}" class="button btn btn-danger "><i class="fa fa-sign-out"></i></a>
+                    {% endif %}
+                </div>
+            </div>            
+        </div>
+        </header>
+        {% endblock %}
+        <!-- MAIN   -->
+        <div class="content" style="padding-top: 30px">
         {% block body %}{% endblock %}
+        </div>        
+        {% block footer %}
+        <!-- FOOTER   -->
+        <footer>
+        <p>|<a href="{{ path('public.legal') }}">Mentions légales</a>|
+            <a href="{{ path('public.contact') }}">Contact</a>|</p>      
+        </footer>
+        {% endblock %}
         {% block javascripts %}{% endblock %}
     </body>
 </html>

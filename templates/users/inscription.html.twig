@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<h1>Inscription</h1>
+<p>Remplissez le formulaire pour vous inscrire.</p>
+{% if message|length > 0 %}
+	<div class="alert alert-danger">
+		{{ message }}
+	</div>
+{% endif %}
+<form method="post" class="form-1">
+    <div class="form-group">
+        <label><strong>Nom</strong></label>
+        <input type="text" name="nom" value="" required class="form-control">
+    </div>    
+    <div class="form-group">
+        <label><strong>Prénom</strong></label>
+        <input type="text" name="prenom" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label><strong>Pseudo</strong></label>
+        <input type="text" name="username" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label><strong>Mot de passe</strong></label>
+        <input type="password" name="password" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label><strong>Question secrète</strong></label>
+        <input type="text" name="question" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label><strong>Réponse à la question secrète</strong></label>
+        <input type="password" name="reponse" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Envoyer</button>  
+    </div>
+</form>
+{% endblock %}

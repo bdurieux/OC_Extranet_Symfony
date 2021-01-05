@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<section id="partnerInfos">
+    <div id="partnerLogo">
+        <img src="/images/{{ partner.logo }}" alt="logo acteur">
+    </div>
+    <h2>{{ partner.acteur }}</h2>
+    <p>{{ partner.description }}</p>
+    {# <p><?= formatText(nl2br(secure($partner['description']))); ?></p> #}
+</section>		
+<section id="comments">
+    <div id="headerComments">
+        <div>
+            {% if comments|length > 1 %}
+            <h3>{{ comments|length }} commentaires</h3>
+            {% else %}
+            <h3>{{ comments|length }} commentaire</h3>
+            {% endif %}
+        </div>
+        <div id="block-btn">
+            <div id="btn-comment">
+                <button class="btn btn-primary" onclick="toggleNewComment()">Nouveau commentaire</i></button>
+            </div>
+            <div id="review-btn">
+                <form method="post">
+                    <label class="lbl-like"><strong>{{ nb_like }}</strong></label>
+                    <button class="btn btn-success" type="submit" name="like">
+                        <i class="fa fa-thumbs-up"></i>
+                    </button>
+                </form>
+                <form method="post">
+                    <label class="lbl-dislike"><strong>{{ nb_dislike }}</strong></label>
+                    <button class="btn btn-danger" type="submit" name="dislike">
+                        <i class="fa fa-thumbs-down">
+                    </i></button>
+                </form>
+            </div>
+        </div>				
+    </div>
+    <div id="listComments">
+        <form method="post" id="newComment" class="form-1">
+            <div class="form-group">
+                <label><strong>Laisser un commentaire</strong></label>
+                <textarea name="comment" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Envoyer</button>
+            </div>
+        </form>
+        {% if message|length > 0 %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endif %}
+        <p>Taux de satisfaction: 
+        <strong>{{ ((nb_like/(nb_like + nb_dislike)))|format_percent_number }}</strong> 
+        ({{ nb_like + nb_dislike }} 
+        {% if (nb_like + nb_dislike) > 1 %}
+        votes
+        {% else %}
+        vote
+        {% endif %}
+        )</p>                    
+        {% for comment in comments %}
+            <div class="comment">
+                <p><strong>{{ comment.prenom }}</strong></p>
+                <p>Publié le <?= date('d/m/Y à H:i:s',strtotime($comment['date_add'])); ?></p>
+                <p>{{ comment.post }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/script.js') }}"></script>
+{% endblock %}

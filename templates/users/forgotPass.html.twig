@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<h1>Mot de passe oublié</h1>
+<p>Entrez votre pseudo et répondez à la question secrète pour modifier votre mot de passe.</p>
+{% if message|length > 0 %}
+	<div class="alert alert-danger">
+		{{ message }}
+	</div>
+{% endif %}
+<form method="post" class="form-1">
+    <div class="form-group">
+        <label><strong>Pseudo</strong></label>
+        <input type="text" name="username" value="" required class="form-control">
+    </div>
+    {% if not hideQuestion %}
+    <div>
+        <p><strong>Question secrète:</strong></p>
+        <p>{{ question }}</p>
+        <div class="form-group">
+            <label><strong>Réponse secrète</strong></label>
+            <input type="password" name="reponse" value="" required class="form-control">
+        </div>	
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+    </div>
+</form>
+{% endblock %}

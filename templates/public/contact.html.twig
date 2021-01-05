@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<h1>Contact</h1>
+<p>Remplissez le formulaire suivant pour nous contacter</p>
+{% if message|length > 0 %}
+	<div class="alert alert-danger">
+		{{ message }}
+	</div>
+{% endif %}
+<form method="post"  class="form-1"> 
+    <div class="form-group">
+        <label><strong>Email</strong></label>
+        <input type="text" name="mail" value="" class="form-control">
+    </div>
+    <div class="form-group">
+        <label><strong>Message</strong></label>
+        <input type="text" name="message" value="" required class="form-control">
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+    </div>
+</form> 
+{% endblock %}
