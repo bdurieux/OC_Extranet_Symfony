@@ -6,7 +6,7 @@
         <img src="/images/{{ partner.logo }}" alt="logo acteur">
     </div>
     <h2>{{ partner.acteur }}</h2>
-    <p>{{ partner.description }}</p>
+    <p>{{ partner.description|raw }}</p>
     {# <p><?= formatText(nl2br(secure($partner['description']))); ?></p> #}
 </section>		
 <section id="comments">
@@ -65,7 +65,7 @@
         {% for comment in comments %}
             <div class="comment">
                 <p><strong>{{ comment.prenom }}</strong></p>
-                <p>Publié le <?= date('d/m/Y à H:i:s',strtotime($comment['date_add'])); ?></p>
+                <p>Publié le {{ comment.date_add|format_datetime(locale='fr') }}</p>
                 <p>{{ comment.post }}</p>
             </div>
         {% endfor %}

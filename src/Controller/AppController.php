@@ -26,8 +26,6 @@ class AppController extends AbstractController{
 		if ($user->getIdUser() !== null) {
 			if(password_verify($password,$user->getPassword())){
 				$session->set('auth',$user->getIdUser());
-				//$_SESSION['auth'] = $user->getIdUser();
-				//setcookie('username', $user->username, time() + (86400 * 30), "/");
 				return true;
 			}			
 		}

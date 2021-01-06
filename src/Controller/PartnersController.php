@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Account;
 use App\Entity\Acteur;
+use App\Entity\Post;
+use App\Entity\Vote;
 use App\Repository\ActeurRepository;
 use App\Repository\PostRepository;
 use App\Repository\VoteRepository;
@@ -93,25 +95,25 @@ class PartnersController extends AppController{
                     // vérifier l'unicité du commentaire
                     if(empty($postRepo->findBy(array('idUser' => $user->getIdUser(),'idActeur' => $partner->getIdActeur())))){
                         //sauver le commentaire en bdd 
-                        $sql = 'INSERT INTO post (id_user, id_acteur, post) 
-                            VALUES (?,?,?)';
-                        $request = $bdd->prepare($sql);
-                        $request->execute(array(
-                            $user['id_user'],
-                            $partner['id_acteur'],
-                            secure($_POST['comment'])
-                        ));
-                        header('Location: partners.php?id=' . $partner['id_acteur']);
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $comment = new Post();
+                        $comment->setIdUser($user->getIdUser())
+                            ->setIdActeur($partner->getIdActeur())
+                            ->setPost($this->secure($_POST['comment']))
+                            ->setDateAdd(new \DateTime('now'));
+                        $entityManager->persist($comment);
+                        $entityManager->flush();
+                        return $this->redirectToRoute('acteur', array('id' => $partner->getIdActeur()));
                     }else{
                         $message = "Vous avez déjà commenté cet acteur.";
                     }                    
                 }                
             }elseif(isset($_POST['like'])){ // ajout d'un like
-                if(!vote($user['id_user'], $partner['id_acteur'],true,$bdd)){
+                if(!$this->saveVote($user->getIdUser(), $partner->getIdActeur(),true,$voteRepo)){
                     $message = "Vous avez déjà voté pour  cet acteur.";
                 }
             }elseif(isset($_POST['dislike'])){  // ajout d'un dislike
-                if(!vote($user['id_user'], $partner['id_acteur'], false,$bdd)){
+                if(!$this->saveVote($user->getIdUser(), $partner->getIdActeur(),false,$voteRepo)){
                     $message = "Vous avez déjà voté pour  cet acteur.";
                 }                
             }
@@ -132,6 +134,36 @@ class PartnersController extends AppController{
             'nb_dislike' => $nb_dislike,
             'comments' => $comments
         ]);
-        //return new Response('Page de partenaire ' . $id);
+    }
+
+    /**
+     * appel la fonction qui sauve la vote en bdd et retourne false si le vote existe deja
+     * @param $id_user 
+     * @param $id_acteur
+     * @param $like 
+     * @return false si 1 vote associé à id_user & id_acteur existe deja
+     */
+    private function saveVote($id_user,$id_acteur,bool $like,VoteRepository $voteRepo){
+        $existeDeja = false;
+        $value = 1;
+        if(!$like){
+            $value = -1;
+        }
+        // vérifier l'unicité du vote
+        if(empty($voteRepo->findBy(array('idUser' => $id_user,'idActeur' => $id_acteur)))){
+            //sauver le vote en bdd 
+            $entityManager = $this->getDoctrine()->getManager();
+            $vote = new vote();
+            $vote->setIdUser($id_user)
+                ->setIdActeur($id_acteur)
+                ->setVote($value);
+            $entityManager->persist($vote);
+            $entityManager->flush();            
+            /* $sql = 'INSERT INTO vote (id_user, id_acteur, vote) VALUES (?,?,?)';
+            $request = $bdd->prepare($sql);
+            $request->execute(array($id_user,$id_acteur,$value)); */
+            $existeDeja = true;
+        }
+        return $existeDeja;
     }
 }

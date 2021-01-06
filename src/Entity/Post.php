@@ -40,7 +40,7 @@ class Post
      *
      * @ORM\Column(name="date_add", type="datetime", nullable=false, options={"default"="current_timestamp()"})
      */
-    private $dateAdd = 'current_timestamp()';
+    private $dateAdd;//'current_timestamp()';
 
     /**
      * @var string

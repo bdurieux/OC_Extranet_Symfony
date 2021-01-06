@@ -102,16 +102,14 @@ class UsersController extends AppController{
             if($response){
                 $user = $response;
             }	
-            if($user->getIdUser() !== null){			
+            if($user->getIdUser() !== null){		
+                // vérification de la validité du mot de passe	
                 if(strlen($this->secure($_POST['password1']))>0 && 
                     $this->secure($_POST['password1']) === $this->secure($_POST['password2'])){
-                    //faire l'update du password
+                    // update du password
+                    $entityManager = $this->getDoctrine()->getManager();
                     $user->setPassword(password_hash($this->secure($_POST['password1']),PASSWORD_DEFAULT));
-                    var_dump('TODO : UPDATE du password');
-                    /* $sql = 'UPDATE account SET password = ? WHERE id_user = ?';
-                    $request = $bdd->prepare($sql);
-                    $request->execute(array(password_hash(secure($_POST['password1']),PASSWORD_DEFAULT),$user['id_user']));
-                     */
+                    $entityManager->flush();
                     return $this->redirectToRoute('login');
                 }else{
                     $message = "Les 2 mots de passe ne correspondent pas.";
@@ -140,7 +138,7 @@ class UsersController extends AppController{
         $hideBtn = true;
         $logged = false;
         if(!empty($_POST)){
-            $message = checkParam($_POST);
+            $message = $this->checkParam($_POST);
             if(empty($message)){
                 // vérification de l'unicité du pseudo
                 $repo = $this->getDoctrine()->getRepository(Account::class);
@@ -152,18 +150,16 @@ class UsersController extends AppController{
                 if($user->getIdUser() !== null){
                     $message = "Pseudo déjà utilisé.";
                 }else{
-                    //TODO : INSERT 
-                    /* $sql = 'INSERT INTO account (nom, prenom, username, password, question, reponse) 
-                            VALUES (?,?,?,?,?,?)';
-                    $request = $bdd->prepare($sql);
-                    $request->execute(array(
-                        secure($_POST['nom']),
-                        secure($_POST['prenom']),
-                        secure($_POST['username']),
-                        password_hash(secure($_POST['password']),PASSWORD_DEFAULT),
-                        secure($_POST['question']),
-                        password_hash(secure($_POST['reponse']),PASSWORD_DEFAULT)
-                    )); */
+                    // on sauve les données de
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $user->setNom($this->secure($_POST['nom']))
+                        ->setPrenom($this->secure($_POST['prenom']))
+                        ->setUsername($this->secure($_POST['username']))
+                        ->setPassword(password_hash($this->secure($_POST['password']),PASSWORD_DEFAULT))
+                        ->setQuestion($this->secure($_POST['question']))
+                        ->setReponse(password_hash($this->secure($_POST['reponse']),PASSWORD_DEFAULT));
+                    $entityManager->persist($user);
+                    $entityManager->flush();
                     return $this->redirectToRoute('login');
                 }				
             }
@@ -198,28 +194,24 @@ class UsersController extends AppController{
                 $headerText = $this->secure($user->getPrenom()) . ' ' . $this->secure($user->getNom());
             }
             if(!empty($_POST)){
-                $message = checkParam($_POST);
+                $message = $this->checkParam($_POST);
                 if(empty($message)){
                     $pseudoUser = new Account();
-                    $pseudoUser = $repo->findUserByUsername($this->secure($_POST['username']));
+                    $pseudoUser = $repo->findOneByUsername($this->secure($_POST['username']));
                     // on vérifie que le pseudo n'est pas deja utilisé par un autre user
                     if($pseudoUser->getIdUser() !== null && ($pseudoUser->getIdUser() != $user->getIdUser())){
                         $message .= "Pseudo déjà utilisé.";
                     }else{
-                        // TODO: UPDATE
-                        /* $sql = 'UPDATE account SET nom = ?, prenom = ?, username = ?, password = ?, question = ?, reponse = ? 
-                        WHERE id_user = ?';
-                        $request = $bdd->prepare($sql);
-                        $request->execute(array(
-                            secure($_POST['nom']),
-                            secure($_POST['prenom']),
-                            secure($_POST['username']),
-                            password_hash(secure($_POST['password']),PASSWORD_DEFAULT),
-                            secure($_POST['question']),
-                            password_hash(secure($_POST['reponse']),PASSWORD_DEFAULT),
-                            $user['id_user']
-                        )); */
-                        return $this->redirectToRoute('login');
+                        // update des données utilisateur
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $user->setNom($this->secure($_POST['nom']))
+                            ->setPrenom($this->secure($_POST['prenom']))
+                            ->setUsername($this->secure($_POST['username']))
+                            ->setPassword(password_hash($this->secure($_POST['password']),PASSWORD_DEFAULT))
+                            ->setQuestion($this->secure($_POST['question']))
+                            ->setReponse(password_hash($this->secure($_POST['reponse']),PASSWORD_DEFAULT));
+                        $entityManager->flush();
+                        return $this->redirectToRoute('home');
                     }				
                 }
             }
@@ -260,7 +252,6 @@ class UsersController extends AppController{
 	 * @return array renvoie un tableau contenant $message et $errors
 	 */
 	protected function checkParam($params){
-		$errors = false;
 		$message = "";
 		/* if(isset($_FILES['avatar']) && $_FILES['avatar']['size']>1000000){
 			$message .= "Taille de l'avatar trop grande (max 1 Mo) <br>";
@@ -268,28 +259,22 @@ class UsersController extends AppController{
 		} */
 		if(isset($_POST['nom']) && strlen($this->secure($_POST['nom']))<2){
 			$message .= "Nom invalide <br>";
-			$errors = true;
 		}
 		if(isset($_POST['prenom']) && strlen($this->secure($_POST['prenom']))<2){
 			$message .= "Prénom invalide <br>";
-			$errors = true;
 		}
 		if(isset($_POST['username']) && strlen($this->secure($_POST['username']))<4){
 			$message .= "Pseudo invalide <br>";
-			$errors = true;
 		}
 		if(isset($_POST['password']) && strlen($this->secure($_POST['password']))<4){
 			$message .= "Mot de passe invalide <br>";
-			$errors = true;
 		}
 		if(isset($_POST['question']) && strlen($this->secure($_POST['question']))<10){
 			$message .= "Question invalide <br>";
-			$errors = true;
 		}
 		if(isset($_POST['reponse']) && strlen($this->secure($_POST['reponse']))<4){
 			$message .= "Réponse invalide <br>";
-			$errors = true;
 		}
-		return compact('message','errors');
+		return $message;
 	}
 }
